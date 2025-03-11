@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingStateProps {
   url: string;
@@ -22,11 +22,6 @@ const LoadingState: React.FC<LoadingStateProps> = ({ url }) => {
           <code className="font-mono text-xs break-all bg-gray-100 dark:bg-gray-800 p-1 rounded">
             {url}
           </code>
-        </div>
-        
-        <div className="flex items-center text-amber-500 text-xs mt-2 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
-          <AlertTriangle className="h-4 w-4 mr-2" />
-          <span>Preview may be limited due to website security restrictions</span>
         </div>
       </CardContent>
     </Card>

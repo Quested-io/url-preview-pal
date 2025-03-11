@@ -7,7 +7,8 @@ import CompactPreview from '@/components/CompactPreview';
 import DetailedPreview from '@/components/DetailedPreview';
 import LoadingState from '@/components/LoadingState';
 import ErrorDisplay from '@/components/ErrorDisplay';
-import { fetchPreviewData, PreviewData } from '@/utils/urlPreviewUtils';
+import { PreviewData } from '@/utils/urlPreviewUtils';
+import { fetchUrlPreview } from '@/utils/previewService';
 import { Info } from 'lucide-react';
 
 const Index = () => {
@@ -22,7 +23,8 @@ const Index = () => {
     setPreviewData(null);
     
     try {
-      const data = await fetchPreviewData(inputUrl);
+      // Use the server-side proxy instead of direct fetch
+      const data = await fetchUrlPreview(inputUrl);
       setPreviewData(data);
     } catch (error) {
       console.error('Error generating preview:', error);
