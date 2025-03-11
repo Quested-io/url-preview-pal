@@ -16,47 +16,74 @@ export const fetchPreviewData = async (url: string): Promise<PreviewData> => {
   try {
     console.log('Fetching preview for URL:', url);
     
-    // For a real application, you would typically have a backend service to handle this
-    // to avoid CORS issues. Here's a simplified approach that relies on client-side fetching:
-    
-    // First, try a direct fetch to see if CORS allows it (many sites won't)
-    const response = await fetch(url, { 
-      method: 'GET',
-      headers: { 'Accept': 'text/html' },
-      mode: 'cors' 
-    });
-    
-    // Simple content type check to determine the type of content
-    const contentType = response.headers.get('Content-Type') || '';
-    
-    if (contentType.includes('image/')) {
-      // It's an image
+    // For image URLs, we can often bypass CORS issues
+    if (isImageUrl(url)) {
       return {
         url,
         title: getFileNameFromUrl(url),
         image: url,
         type: 'image',
-        contentType
+        contentType: 'image/*'
       };
-    } else if (contentType.includes('video/')) {
-      // It's a video
+    }
+    
+    // For video URLs with common extensions
+    if (isVideoUrl(url)) {
       return {
         url,
         title: getFileNameFromUrl(url),
         type: 'video',
-        contentType
+        contentType: 'video/*'
       };
-    } else if (contentType.includes('text/html') || contentType.includes('application/xhtml+xml')) {
-      // It's a website, try to extract metadata
-      const html = await response.text();
-      return extractMetadataFromHtml(url, html);
-    } else {
-      // Unknown type
+    }
+
+    // For other URLs, try a direct fetch with CORS mode first
+    try {
+      const response = await fetch(url, { 
+        method: 'GET',
+        headers: { 'Accept': 'text/html' },
+        mode: 'cors'
+      });
+      
+      const contentType = response.headers.get('Content-Type') || '';
+      
+      if (contentType.includes('image/')) {
+        return {
+          url,
+          title: getFileNameFromUrl(url),
+          image: url,
+          type: 'image',
+          contentType
+        };
+      } else if (contentType.includes('video/')) {
+        return {
+          url,
+          title: getFileNameFromUrl(url),
+          type: 'video',
+          contentType
+        };
+      } else if (contentType.includes('text/html') || contentType.includes('application/xhtml+xml')) {
+        const html = await response.text();
+        return extractMetadataFromHtml(url, html);
+      } else {
+        return {
+          url,
+          title: getFileNameFromUrl(url),
+          type: 'unknown',
+          contentType
+        };
+      }
+    } catch (corsError) {
+      console.error('CORS error fetching URL:', corsError);
+      
+      // Fallback to extracting minimal info from the URL itself
       return {
         url,
-        title: getFileNameFromUrl(url),
-        type: 'unknown',
-        contentType
+        title: getDomainFromUrl(url),
+        description: "Preview limited due to website security restrictions (CORS).",
+        type: 'website',
+        isError: true,
+        errorMessage: 'Could not load preview. The site has CORS restrictions that prevent browser-based previews. A server-side solution would be needed.'
       };
     }
   } catch (error) {
@@ -78,6 +105,16 @@ const getFileNameFromUrl = (url: string): string => {
     const segments = pathname.split('/');
     const fileName = segments[segments.length - 1];
     return fileName || urlObj.hostname;
+  } catch {
+    return url;
+  }
+};
+
+// Get just the domain from a URL
+const getDomainFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
   } catch {
     return url;
   }
