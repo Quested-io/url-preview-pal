@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,29 @@
 
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, #8B5CF6 0%, #0EA5E9 100%);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .preview-card {
+    @apply bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300;
+  }
+  
+  .preview-card:hover {
+    @apply shadow-xl transform -translate-y-1;
+  }
+  
+  .url-input {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  }
+  
+  .preview-tab {
+    @apply transition-all duration-200 font-medium text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400;
+  }
+  
+  .preview-tab.active {
+    @apply text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400;
   }
 }
